@@ -48,3 +48,51 @@ async def create_note(req: Request):
 
     # 5. Devolvemos el ID del documento recién creado
     return {"id": ref.id}
+
+# Endpoint: Actualizar una nota existente
+# Método: PUT /notes/{id}
+@app.put("/notes/{id}")
+async def update_note(id: str, req: Request):
+    # 1. Leemos el JSON del cuerpo de la petición
+    data = await req.json()
+
+    # 2. Validamos que existan los campos obligatorios 'title' y 'content'
+    if not data.get("title") or not data.get("content"):
+        raise HTTPException(status_code=400, detail="Faltan 'title' o 'content'")
+
+    # 3. Obtenemos la referencia al documento
+    doc_ref = db.collection("notes").document(id)
+    
+    # 4. Verificamos que el documento existe
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Nota no encontrada")
+
+    # 5. Actualizamos el documento con los nuevos datos
+    doc_ref.update({
+        "title": data["title"],
+        "content": data["content"],
+        # SERVER_TIMESTAMP actualiza la fecha de modificación
+        "updated_at": firestore.SERVER_TIMESTAMP
+    })
+
+    # 6. Devolvemos confirmación de la actualización
+    return {"message": "Nota actualizada exitosamente", "id": id}
+
+# Endpoint: Eliminar una nota
+# Método: DELETE /notes/{id}
+@app.delete("/notes/{id}")
+async def delete_note(id: str):
+    # 1. Obtenemos la referencia al documento
+    doc_ref = db.collection("notes").document(id)
+    
+    # 2. Verificamos que el documento existe
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Nota no encontrada")
+
+    # 3. Eliminamos el documento
+    doc_ref.delete()
+
+    # 4. Devolvemos confirmación de la eliminación
+    return {"message": "Nota eliminada exitosamente", "id": id}
