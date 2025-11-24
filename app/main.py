@@ -49,7 +49,6 @@ async def create_note(req: Request):
     # 5. Devolvemos el ID del documento recién creado
     return {"id": ref.id}
 
-# Endpoint: Actualizar una nota existente
 # Método: PUT /notes/{id}
 @app.put("/notes/{id}")
 async def update_note(id: str, req: Request):
@@ -79,7 +78,6 @@ async def update_note(id: str, req: Request):
     # 6. Devolvemos confirmación de la actualización
     return {"message": "Nota actualizada exitosamente", "id": id}
 
-# Endpoint: Eliminar una nota
 # Método: DELETE /notes/{id}
 @app.delete("/notes/{id}")
 async def delete_note(id: str):
